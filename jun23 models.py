@@ -77,7 +77,7 @@ class TransformerModel(nn.Module):
 
 
 
-#2nd way
+##2nd way and correct code
 
 import torch
 import torch.nn as nn
@@ -85,7 +85,7 @@ import math
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
-        super(PositionalEncoding, self).__init__()
+        super().__init__()
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len, dtype=torch.float32).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, d_model, 2, dtype=torch.float32) * (-math.log(10000.0) / d_model))
@@ -98,9 +98,10 @@ class PositionalEncoding(nn.Module):
         # x: [batch_size, seq_len, d_model]
         return x + self.pe[:, :x.size(1), :]
 
-class TransformerModel(nn.Module):
+class TransformerModel3(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, max_seq_len=30, dropout=0.1):
-        super(TransformerModel, self).__init__()
+        super().__init__()  # ✅ Corrected
+
         self.input_proj = nn.Linear(input_size, hidden_size)
         self.pos_encoder = PositionalEncoding(hidden_size, max_len=max_seq_len)
 
@@ -109,7 +110,7 @@ class TransformerModel(nn.Module):
             nhead=4,
             dim_feedforward=hidden_size * 2,
             dropout=dropout,
-            batch_first=True  # <== Use batch_first=True
+            batch_first=True  # ✅ Avoids permute
         )
         self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
@@ -136,4 +137,3 @@ class TransformerModel(nn.Module):
 
         out = self.decoder(pooled).squeeze(-1)  # [B]
         return out
-
